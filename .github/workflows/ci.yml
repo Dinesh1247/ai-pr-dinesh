@@ -4,57 +4,57 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
-      # Step 1: Checkout the code
+      # Step 1: Checkout code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      # Step 2: Set up Python
+      # Step 2: Set up Python 3.8
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
-      # Step 3: Install dependencies
+      # Step 3: Verify Python version
+      - name: Verify Python
+        run: |
+          python --version
+          python -m pip --version
+
+      # Step 4: Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.tx
-          pip install pytest  # Explicitly install pytest
-          pip install coverage  # Ensure coverage is installed
-          pip install pylint  # Explicitly install pylint if needed
+          python -m pip install -r requirements.tx
+          python -m pip install pytest coverage pylint
 
-      # Step 3.1: Check installed packages
-      - name: Check installed packages
-        run: |
-          pip show pytest
-          pip show pylint  # Verify pylint is installed
-          pip freeze  # Show all installed packages
-
-      # Step 4: Run tests
+      # Step 5: Run tests
       - name: Run tests
         run: |
-          pytest tests/ --maxfail=1 --disable-warnings -v
+          python -m pytest tests/ --maxfail=1 --disable-warnings -v
 
-      # Step 5: Lint code
-      - name: Lint code
+      # Step 6: Run lint
+      - name: Run lint
+        continue-on-error: true
         run: |
-          pylint **/*.py || true  # Ignore pylint warnings (not recommended for production)
+          pylint **/*.py
 
-      # Step 6: Check code coverage
+      # Step 7: Check code coverage
       - name: Check code coverage
         run: |
-          coverage run -m pytest
-          coverage report
+          python -m coverage run -m pytest
+          python -m coverage report
 
-      # Step 7: Run AI Agent to review PR
+      # Step 8: Run AI Agent to review PR
       - name: Run AI Agent to Review PR
+        if: github.event_name == 'pull_request'
         run: |
           python .github/workflows/pr_review_agent.py
         env:
-          GITHUB_TOKEN: ${{ secrets.token }}  # GitHub token for API access
+          GITHUB_TOKEN: ${{ secrets.token }}
