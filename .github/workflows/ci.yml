@@ -57,4 +57,4 @@ jobs:
         run: |
           python .github/workflows/pr_review_agent.py
         env:
-          GITHUB_TOKEN: ${{ secrets.abc }}  # GitHub token for API access
+          GITHUB_TOKEN: ${{ secrets.token }}  # GitHub token for API access
